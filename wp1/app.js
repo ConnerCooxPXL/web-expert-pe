@@ -8,6 +8,8 @@ const PORT = 3000;
 
 const CONFIG = process.argv.slice(2)[0] || 'config.yaml';
 
+app.set('view engine', 'pug');
+
 let config;
 
 try {
@@ -34,7 +36,10 @@ function checkRoute(req, res, next) {
 }
 
 app.get('/', (req, res) => {
-  res.send(`Configured routes: ${config.routes}`);
+  res.render('index', {
+    title: "pets",
+    config: config
+  });
 });
 
 app.get('/:route', checkRoute, (req, res) => {

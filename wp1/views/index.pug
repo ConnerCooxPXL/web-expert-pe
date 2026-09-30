@@ -1,0 +1,11 @@
+doctype html
+html
+    head
+        title #{title}
+    body
+        h1 #{title}
+        ul
+            each route in config.routes
+                li
+                    a(href='/' + route)= '/' + route
+                    |  - #{config[route].length} items
