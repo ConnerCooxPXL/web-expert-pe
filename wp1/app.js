@@ -44,14 +44,21 @@ app.get('/', (req, res) => {
 
 app.get('/:route', checkRoute, (req, res) => {
   const route = req.params.route;
+  const { embed } = req.query;
   const data = config[route] || [];
 
-  res.json(data);
+  const info = getEmbedInfo(route, embed);
+  if (!info) {
+    return res.json(data);
+  }
+
+  res.json(data.map(item => embedRecord(item, info.relation, info.relatedData, embed)));
 });
 
 app.get('/:route/:id', checkRoute, (req, res) => {
   const route = req.params.route;
   const id = req.params.id;
+  const { embed } = req.query;
   const data = config[route] || [];
 
   const record = data.find(item => item.id == id);
@@ -62,8 +69,35 @@ app.get('/:route/:id', checkRoute, (req, res) => {
     });
   }
 
-  res.json(record);
+  const info = getEmbedInfo(route, embed);
+  if (!info) {
+    return res.json(record);
+  }
+
+  res.json(embedRecord(record, info.relation, info.relatedData, embed));
 });
+
+function getEmbedInfo(route, embed) {
+  const relations = config.relationships?.[route] || [];
+  const relation = relations.find(r => r.foreignKey.replace("Ids", "") + "s" === embed);
+
+  if (!relation) {
+    return null;
+  }
+
+  const relatedData = config[relation.relatedRoute] || [];
+  return { relation, relatedData };
+}
+
+function embedRecord(record, relation, relatedData, embed) {
+  const keys = record[relation.foreignKey] || [];
+  const records = []
+  for (const key of keys) {
+    const found = relatedData.find(item => item.id === key);
+    if (found) records.push(found);
+  }
+  return {...record, [embed]: records};
+}
 
 const server = app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
