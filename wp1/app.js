@@ -21,6 +21,7 @@ try {
   process.exit(1);
 }
 
+app.use(express.static('public'));
 app.use(express.json());
 
 function checkRoute(req, res, next) {

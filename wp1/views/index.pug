@@ -2,10 +2,13 @@ doctype html
 html
     head
         title #{title}
+        link(rel='stylesheet', href='/style.css')
     body
-        h1 #{title}
-        ul
-            each route in config.routes
-                li
-                    a(href='/' + route)= '/' + route
-                    |  - #{config[route].length} items
+        body
+            .card
+                h1 #{title}
+                ul
+                    each route in config.routes
+                        li
+                            a(href='/' + route)= '/' + route
+                            span.count #{config[route].length} items
